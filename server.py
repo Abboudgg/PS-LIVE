@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import threading
 import time
+from urllib.parse import urlsplit
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 STATE = {"process": None, "started_at": None, "last_error": None}
@@ -21,53 +22,79 @@ def current_process():
 
 
 class Handler(BaseHTTPRequestHandler):
-    def send_json(self, status, payload):
+    def route_path(self):
+        return urlsplit(self.path).path.rstrip("/") or "/"
+
+    def send_json(self, status, payload, head_only=False):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        if not head_only:
+            self.wfile.write(body)
 
     def authorized(self):
         expected = os.environ.get("PS_LIVE_CONTROL_TOKEN", "")
         supplied = self.headers.get("Authorization", "")
         if not expected:
-            self.send_json(503, {"error": "control_not_configured",
-                                 "message": "Set PS_LIVE_CONTROL_TOKEN in the service environment."})
+            self.send_json(503, {
+                "error": "control_not_configured",
+                "message": "Set PS_LIVE_CONTROL_TOKEN in the service environment."
+            })
             return False
         if not hmac.compare_digest(supplied, f"Bearer {expected}"):
             self.send_json(401, {"error": "unauthorized"})
             return False
         return True
 
+    def status_payload(self):
+        with LOCK:
+            process = current_process()
+            return {
+                "service": "PS-LIVE",
+                "stage": "stream-bridge-foundation",
+                "ps5_connected": False,
+                "video_receiving": False,
+                "audio_receiving": False,
+                "streaming": process is not None,
+                "ffmpeg_running": process is not None,
+                "started_at": STATE["started_at"],
+                "last_error": STATE["last_error"],
+                "message": "محرك Remote Play لم يُدمج بعد؛ لا يوجد مصدر PS5 متصل حاليًا."
+            }
+
+    def get_payload(self):
+        path = self.route_path()
+        if path == "/":
+            return 200, {
+                "ok": True,
+                "service": "PS-LIVE API",
+                "message": "الخادم يعمل.",
+                "endpoints": ["/health", "/status"]
+            }
+        if path == "/health":
+            return 200, {"ok": True, "service": "ps-live-api"}
+        if path == "/status":
+            return 200, self.status_payload()
+        return 404, {"error": "not_found"}
+
     def do_GET(self):
-        if self.path == "/health":
-            return self.send_json(200, {"ok": True, "service": "ps-live-api"})
-        if self.path == "/status":
-            with LOCK:
-                process = current_process()
-                return self.send_json(200, {
-                    "service": "PS-LIVE",
-                    "stage": "stream-bridge-foundation",
-                    "ps5_connected": False,
-                    "video_receiving": False,
-                    "audio_receiving": False,
-                    "streaming": process is not None,
-                    "ffmpeg_running": process is not None,
-                    "started_at": STATE["started_at"],
-                    "last_error": STATE["last_error"],
-                    "message": "محرك Remote Play لم يُدمج بعد؛ لا يوجد مصدر PS5 متصل حاليًا."
-                })
-        return self.send_json(404, {"error": "not_found"})
+        status, payload = self.get_payload()
+        self.send_json(status, payload)
+
+    def do_HEAD(self):
+        status, payload = self.get_payload()
+        self.send_json(status, payload, head_only=True)
 
     def do_POST(self):
-        if self.path not in ("/api/stream/start", "/api/stream/stop"):
+        path = self.route_path()
+        if path not in ("/api/stream/start", "/api/stream/stop"):
             return self.send_json(404, {"error": "not_found"})
         if not self.authorized():
             return
-        if self.path.endswith("/start"):
+        if path == "/api/stream/start":
             return self.start_stream()
         return self.stop_stream()
 
