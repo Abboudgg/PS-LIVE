@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131b">
+  <title>PS LIVE — لوحة التحكم</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0e14;--panel:#151a24;--line:#293142;--muted:#9aa5b5;--text:#f4f6fb;--accent:#8b5cf6;--green:#35c98a}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#242044 0,transparent 34%),var(--bg);color:var(--text);font:16px system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:760px;margin:auto;padding:22px 16px 48px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    h1{font-size:25px;margin:0;letter-spacing:.5px}.sub{color:var(--muted);font-size:13px;margin-top:5px}
+    .pill{border:1px solid var(--line);border-radius:99px;padding:7px 11px;color:#ffd58a;font-size:12px;white-space:nowrap}
+    .card{background:linear-gradient(145deg,#191f2c,#121722);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 12px 35px #0003}
+    .preview{aspect-ratio:16/9;border-radius:13px;background:repeating-linear-gradient(135deg,#171d29,#171d29 12px,#141925 12px,#141925 24px);display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed #46516a}
+    .preview strong{display:block;color:var(--text);font-size:18px;margin-top:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{background:#0f141e;border:1px solid var(--line);border-radius:13px;padding:13px}.label{font-size:12px;color:var(--muted)}.value{font-weight:650;margin-top:7px}
+    .actions{display:flex;gap:10px;margin-top:14px}.btn{border:0;border-radius:12px;padding:13px 16px;font:inherit;font-weight:700;flex:1;background:var(--accent);color:white}.btn.secondary{background:#242c3b;border:1px solid var(--line)}
+    .btn:disabled{opacity:.48}.note{font-size:13px;color:var(--muted);line-height:1.7}.tag{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:5px 9px;margin:4px 4px 0 0;font-size:12px}
+    footer{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+    @media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.top{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div><h1>🎮 PS LIVE</h1><div class="sub">لوحة التحكم ببث PS5</div></div>
+    <span class="pill" id="status">النموذج الأولي · غير متصل</span>
+  </header>
+  <section class="card">
+    <div class="preview"><div>▣<strong>معاينة شاشة PS5</strong><span class="sub">ستظهر هنا بعد بناء جسر استقبال الفيديو</span></div></div>
+    <div class="actions"><button class="btn" disabled>بدء البث</button><button class="btn secondary" disabled>إيقاف البث</button></div>
+    <p class="note">أزرار البث معطّلة في هذه النسخة؛ هذه واجهة أولية فقط وليست اتصالًا فعليًا بـ PlayStation أو Restream.</p>
+  </section>
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 13px">حالة النظام</h2>
+    <div class="grid">
+      <div class="stat"><div class="label">PlayStation 5</div><div class="value">بانتظار الربط</div></div>
+      <div class="stat"><div class="label">الصورة والصوت</div><div class="value">غير مستلمين</div></div>
+      <div class="stat"><div class="label">خادم البث</div><div class="value">غير متصل</div></div>
+      <div class="stat"><div class="label">الجودة</div><div class="value">لم تُحدّد</div></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 8px">وجهات البث المخططة</h2>
+    <span class="tag">Restream</span><span class="tag">Kick</span><span class="tag">TikTok</span>
+    <p class="note">لن نضيف مفاتيح البث أو كلمات المرور إلى هذه الصفحة. ستُحفظ الأسرار لاحقًا في إعدادات الخادم بشكل آمن.</p>
+  </section>
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 8px">مهم قبل تشغيل البث</h2>
+    <p class="note">صفحة الويب لا تستطيع وحدها التقاط شاشة تطبيق Remote Play الموجود في تطبيق آخر على iPhone. نحتاج اختبار مسار التقاط معتمد من iOS (مثل ReplayKit عبر تطبيق/امتداد مناسب) ثم تمرير الفيديو والصوت إلى خادم البث. لن ندّعي أن الاقتران أو المعاينة يعملان حتى ينجح الاختبار فعليًا.</p>
+  </section>
+  <footer>PS LIVE · إصدار واجهة تجريبية 0.1</footer>
+</main>
+</body>
+</html>
